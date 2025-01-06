@@ -48,7 +48,7 @@ func main() {
 func setUpMongoDbConnection() *mongo.Client {
 	mongoPassword := utils.MONGO_PASSWORD
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	uri := "mongodb+srv://lcscarvajal:" + mongoPassword + "@cluster0.d1pwr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+	uri := fmt.Sprintf("mongodb+srv://lcscarvajal:%s@cluster0.d1pwr.mongodb.net/?retryWrites=true&w=majority", mongoPassword)
 
 	// Set client options
 	clientOptions := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
