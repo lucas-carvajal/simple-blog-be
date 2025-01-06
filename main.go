@@ -1,18 +1,29 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"simple-blog-be/api"
+	"simple-blog-be/repository"
+	"simple-blog-be/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
 	r := gin.Default()
 
+	// Initialize repository
+	client := setUpMongoDbConnection()
+	articlesRepository := repository.NewArticlesRepository(client)
+
 	// Initialize all handlers
-	allArticlesHandler := api.AllArticlesHandler{}
-	articleHandler := api.ArticleHandler{}
-	adminArticleHandler := api.AdminArticleHandler{}
+	allArticlesHandler := api.AllArticlesHandler{ArticlesRepository: articlesRepository}
+	articleHandler := api.ArticleHandler{ArticlesRepository: articlesRepository}
+	adminArticleHandler := api.AdminArticleHandler{ArticlesRepository: articlesRepository}
 
 	// Public routes for articles
 	r.GET("/articles", allArticlesHandler.GetAllArticles)
@@ -32,4 +43,31 @@ func main() {
 	}
 
 	r.Run(":8080")
+}
+
+func setUpMongoDbConnection() *mongo.Client {
+	mongoPassword := utils.MONGO_PASSWORD
+	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+	uri := "mongodb+srv://skyfriends-dev:" + mongoPassword + "@skyfriends-dev-1.rvluqty.mongodb.net/?retryWrites=true&w=majority&appName=skyfriends-dev-1"
+
+	// Set client options
+	clientOptions := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
+
+	// Connect to MongoDB
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	client, err := mongo.Connect(ctx, clientOptions)
+	if err != nil {
+		panic("Could not connect to MongoDB: " + err.Error())
+	}
+
+	// Ping the database to verify connection
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		panic("Could not ping MongoDB: " + err.Error())
+	}
+
+	fmt.Println("Connected to MongoDB!")
+	return client
 }

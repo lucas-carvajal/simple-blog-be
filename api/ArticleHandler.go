@@ -2,11 +2,13 @@ package api
 
 import (
 	"net/http"
+	"simple-blog-be/repository"
 
 	"github.com/gin-gonic/gin"
 )
 
 type ArticleHandler struct {
+	ArticlesRepository *repository.ArticlesRepository
 }
 
 func (h *ArticleHandler) GetArticleByID(c *gin.Context) {

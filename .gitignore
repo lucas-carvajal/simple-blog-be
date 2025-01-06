@@ -1,0 +1,34 @@
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Vendor directory
+/vendor/
+
+# Dependency directories
+Godeps/
+vendor/
+
+# IDE/Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Go modules cache
+go.sum
+go.mod
+
+# Env file
+.env

@@ -2,11 +2,13 @@ package api
 
 import (
 	"net/http"
+	"simple-blog-be/repository"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AdminArticleHandler struct {
+	ArticlesRepository *repository.ArticlesRepository
 }
 
 func (h *AdminArticleHandler) CreateArticle(c *gin.Context) {
