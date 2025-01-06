@@ -32,3 +32,4 @@ go.mod
 
 # Env file
 .env
+simple-blog-be
