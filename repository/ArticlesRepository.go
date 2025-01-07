@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -58,13 +59,17 @@ func (r *ArticlesRepository) SearchArticles(ctx context.Context, query string) (
 
 // GetArticleByID retrieves a single article by ID
 func (r *ArticlesRepository) GetArticleByID(ctx context.Context, id string) (*ArticleEntity, error) {
+	fmt.Println(id)
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Println(objectID)
+
 	var article ArticleEntity
 	err = r.articles.FindOne(ctx, bson.M{"_id": objectID}).Decode(&article)
+	fmt.Println(err)
 	if err != nil {
 		return nil, err
 	}
