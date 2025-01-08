@@ -12,13 +12,27 @@ type AllArticlesHandler struct {
 }
 
 func (h *AllArticlesHandler) GetAllArticles(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Getting all articles",
-	})
+	articles, err := h.ArticlesRepository.GetAllArticles(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve articles"})
+		return
+	}
+
+	c.JSON(http.StatusOK, FromEntitiesWithoutContent(articles))
 }
 
 func (h *AllArticlesHandler) SearchArticles(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Searching articles",
-	})
+	query := c.Query("q")
+	if query == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Search query is required"})
+		return
+	}
+
+	articles, err := h.ArticlesRepository.SearchArticles(c.Request.Context(), query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search articles"})
+		return
+	}
+
+	c.JSON(http.StatusOK, FromEntitiesWithoutContent(articles))
 }

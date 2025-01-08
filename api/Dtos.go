@@ -171,3 +171,24 @@ func FromEntities(entities []repository.ArticleEntity) []ArticleDto {
 	}
 	return dtos
 }
+
+// FromEntityWithoutContent converts repository.ArticleEntity to ArticleDto without content
+func FromEntityWithoutContent(entity *repository.ArticleEntity) *ArticleDto {
+	return &ArticleDto{
+		ID:        entity.ID.Hex(),
+		Title:     entity.Title,
+		Subheader: entity.Subheader,
+		Content:   []ContentDto{}, // Empty content
+		CreatedAt: entity.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: entity.UpdatedAt.Format(time.RFC3339),
+	}
+}
+
+// FromEntitiesWithoutContent converts a slice of repository.ArticleEntity to a slice of ArticleDto without content
+func FromEntitiesWithoutContent(entities []repository.ArticleEntity) []ArticleDto {
+	dtos := make([]ArticleDto, len(entities))
+	for i, entity := range entities {
+		dtos[i] = *FromEntityWithoutContent(&entity)
+	}
+	return dtos
+}
