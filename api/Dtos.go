@@ -172,23 +172,47 @@ func FromEntities(entities []repository.ArticleEntity) []ArticleDto {
 	return dtos
 }
 
-// FromEntityWithoutContent converts repository.ArticleEntity to ArticleDto without content
-func FromEntityWithoutContent(entity *repository.ArticleEntity) *ArticleDto {
+// FromEntityWithFirstContent converts repository.ArticleEntity to ArticleDto with only the first content
+func FromEntityWithFirstContent(entity *repository.ArticleEntity) *ArticleDto {
+	// Find content with order = 1
+	var firstContent ContentDto
+	for _, c := range entity.Content {
+		if paragraph, ok := c.(repository.ParagraphEntity); ok {
+			if paragraph.Metadata.Order == 1 {
+				firstContent = ParagraphDto{
+					Metadata: BaseContentDto{
+						Order: paragraph.Metadata.Order,
+					},
+					Text: paragraph.Text,
+				}
+				break
+			}
+		}
+	}
+
+	// Create content slice with only the first content if found
+	var content []ContentDto
+	if firstContent != nil {
+		content = []ContentDto{firstContent}
+	} else {
+		content = []ContentDto{}
+	}
+
 	return &ArticleDto{
 		ID:        entity.ID.Hex(),
 		Title:     entity.Title,
 		Subheader: entity.Subheader,
-		Content:   []ContentDto{}, // Empty content
+		Content:   content,
 		CreatedAt: entity.CreatedAt.Format(time.RFC3339),
 		UpdatedAt: entity.UpdatedAt.Format(time.RFC3339),
 	}
 }
 
-// FromEntitiesWithoutContent converts a slice of repository.ArticleEntity to a slice of ArticleDto without content
-func FromEntitiesWithoutContent(entities []repository.ArticleEntity) []ArticleDto {
+// FromEntitiesWithFirstContent converts a slice of repository.ArticleEntity to a slice of ArticleDto with only first content
+func FromEntitiesWithFirstContent(entities []repository.ArticleEntity) []ArticleDto {
 	dtos := make([]ArticleDto, len(entities))
 	for i, entity := range entities {
-		dtos[i] = *FromEntityWithoutContent(&entity)
+		dtos[i] = *FromEntityWithFirstContent(&entity)
 	}
 	return dtos
 }

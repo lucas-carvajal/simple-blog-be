@@ -18,7 +18,7 @@ func (h *AllArticlesHandler) GetAllArticles(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromEntitiesWithoutContent(articles))
+	c.JSON(http.StatusOK, FromEntitiesWithFirstContent(articles))
 }
 
 func (h *AllArticlesHandler) SearchArticles(c *gin.Context) {
@@ -34,5 +34,5 @@ func (h *AllArticlesHandler) SearchArticles(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, FromEntitiesWithoutContent(articles))
+	c.JSON(http.StatusOK, FromEntitiesWithFirstContent(articles))
 }
