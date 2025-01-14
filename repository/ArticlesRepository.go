@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ArticlesRepository struct {
@@ -20,9 +21,10 @@ func NewArticlesRepository(client *mongo.Client) *ArticlesRepository {
 	}
 }
 
-// GetAllArticles retrieves all articles
+// GetAllArticles retrieves all articles ordered by updatedAt desc
 func (r *ArticlesRepository) GetAllArticles(ctx context.Context) ([]ArticleEntity, error) {
-	cursor, err := r.articles.Find(ctx, bson.M{})
+	opts := options.Find().SetSort(bson.D{{Key: "updatedAt", Value: -1}})
+	cursor, err := r.articles.Find(ctx, bson.M{}, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +37,7 @@ func (r *ArticlesRepository) GetAllArticles(ctx context.Context) ([]ArticleEntit
 	return articles, nil
 }
 
-// SearchArticles searches articles by title or subheader
+// SearchArticles searches articles by title or subheader ordered by updatedAt desc
 func (r *ArticlesRepository) SearchArticles(ctx context.Context, query string) ([]ArticleEntity, error) {
 	filter := bson.M{
 		"$or": []bson.M{
@@ -44,7 +46,8 @@ func (r *ArticlesRepository) SearchArticles(ctx context.Context, query string) (
 		},
 	}
 
-	cursor, err := r.articles.Find(ctx, filter)
+	opts := options.Find().SetSort(bson.D{{Key: "updatedAt", Value: -1}})
+	cursor, err := r.articles.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
