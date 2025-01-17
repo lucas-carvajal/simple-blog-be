@@ -3,15 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"simple-blog-be/api"
 	"simple-blog-be/repository"
 	"simple-blog-be/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/sessions"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+var store = sessions.NewCookieStore([]byte(utils.SESSION_ENCRYPTION_KEY))
 
 func main() {
 	r := gin.Default()
@@ -21,6 +25,7 @@ func main() {
 	articlesRepository := repository.NewArticlesRepository(client)
 
 	// Initialize all handlers
+	authHandler := api.AuthHandler{}
 	allArticlesHandler := api.AllArticlesHandler{ArticlesRepository: articlesRepository}
 	articleHandler := api.ArticleHandler{ArticlesRepository: articlesRepository}
 	adminArticleHandler := api.AdminArticleHandler{ArticlesRepository: articlesRepository}
@@ -40,6 +45,14 @@ func main() {
 		c.Next()
 	})
 
+	// Auth routes
+	auth := r.Group("/auth")
+	{
+		auth.POST("/login", authHandler.Login)
+		auth.POST("/logout", authHandler.Logout)
+		auth.GET("/is-authenticated", authHandler.IsAuthenticated)
+	}
+
 	// Public routes for articles
 	r.GET("/articles", allArticlesHandler.GetAllArticles)
 	r.GET("/articles/search", allArticlesHandler.SearchArticles)
@@ -51,6 +64,7 @@ func main() {
 
 	// Admin routes
 	admin := r.Group("/admin")
+	admin.Use(authMiddleware())
 	{
 		admin.POST("/article", adminArticleHandler.CreateArticle)
 		admin.PUT("/article/:id", adminArticleHandler.UpdateArticle)
@@ -58,6 +72,18 @@ func main() {
 	}
 
 	r.Run(":8080")
+}
+
+func authMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session, _ := store.Get(c.Request, "session-name")
+		if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
 }
 
 func setUpMongoDbConnection() *mongo.Client {

@@ -8,7 +8,9 @@ import (
 )
 
 var (
-	MONGO_PASSWORD = getEnvOrPanic("MONGO_PASSWORD")
+	MONGO_PASSWORD         = getEnvOrPanic("MONGO_PASSWORD")
+	USER_PASSWORD          = getEnvOrPanic("USER_PASSWORD")
+	SESSION_ENCRYPTION_KEY = getEnvOrPanic("SESSION_ENCRYPTION_KEY")
 )
 
 func getEnvOrPanic(key string) string {
