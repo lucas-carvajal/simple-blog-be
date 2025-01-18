@@ -27,9 +27,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 	session.Values["authenticated"] = true
+
+	//session.Options.Secure = true                      // Only send the cookie over HTTPS
+	session.Options.HttpOnly = true                    // Prevent client-side JavaScript from reading the cookie
+	session.Options.SameSite = http.SameSiteStrictMode // Helps prevent CSRF attacks
+
 	session.Save(c.Request, c.Writer)
 
-	c.Redirect(http.StatusSeeOther, "/admin")
+	c.Status(http.StatusOK)
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
@@ -46,6 +51,5 @@ func (h *AuthHandler) IsAuthenticated(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-	// If authenticated, return 200 OK
 	c.Status(http.StatusOK)
 }
