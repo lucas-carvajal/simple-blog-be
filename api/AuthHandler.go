@@ -41,5 +41,11 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 }
 
 func (h *AuthHandler) IsAuthenticated(c *gin.Context) {
-
+	session, _ := h.CookieStore.Get(c.Request, "session-name")
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	// If authenticated, return 200 OK
+	c.Status(http.StatusOK)
 }

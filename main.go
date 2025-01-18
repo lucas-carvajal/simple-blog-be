@@ -25,7 +25,7 @@ func main() {
 	articlesRepository := repository.NewArticlesRepository(client)
 
 	// Initialize all handlers
-	authHandler := api.AuthHandler{}
+	authHandler := api.AuthHandler{CookieStore: store}
 	allArticlesHandler := api.AllArticlesHandler{ArticlesRepository: articlesRepository}
 	articleHandler := api.ArticleHandler{ArticlesRepository: articlesRepository}
 	adminArticleHandler := api.AdminArticleHandler{ArticlesRepository: articlesRepository}
