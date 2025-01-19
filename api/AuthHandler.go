@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"simple-blog-be/utils"
 
@@ -28,9 +29,9 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 	session.Values["authenticated"] = true
 
-	//session.Options.Secure = true                      // Only send the cookie over HTTPS
-	session.Options.HttpOnly = true                    // Prevent client-side JavaScript from reading the cookie
-	session.Options.SameSite = http.SameSiteStrictMode // Helps prevent CSRF attacks
+	session.Options.Secure = false  // Only send the cookie over HTTPS
+	session.Options.HttpOnly = true // Prevent client-side JavaScript from reading the cookie
+	session.Options.SameSite = http.SameSiteLaxMode
 
 	session.Save(c.Request, c.Writer)
 
@@ -46,6 +47,9 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 }
 
 func (h *AuthHandler) IsAuthenticated(c *gin.Context) {
+	fmt.Println("COOKIE")
+	fmt.Println(c.Request.Header.Get("Cookie"))
+
 	session, _ := h.CookieStore.Get(c.Request, "session-name")
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
